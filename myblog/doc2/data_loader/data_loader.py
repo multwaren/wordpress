@@ -2,7 +2,7 @@ import psycopg2
 
 def insert_data():
     try:
-        # PostgreSQL'e bağlanma
+        
         conn = psycopg2.connect(
             dbname="mydatabase",
             user="db_user",
@@ -13,7 +13,7 @@ def insert_data():
         
         cursor = conn.cursor()
         
-        # Veri ekleme komutu
+    
         cursor.execute("INSERT INTO ozgur (column1, column2) VALUES ('sample_data1', 'sample_data2');")
         conn.commit()
         
