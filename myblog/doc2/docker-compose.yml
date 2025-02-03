@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    restart: always
+    environment:
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: db_password
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+      - wp-network
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo_container
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app_network
+
+  redis:
+    image: redis:alpine 
+    container_name: redis_container
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+
+  data_loader:
+    build:
+      context: ./data_loader
+      dockerfile: Dockerfile
+    container_name: data_loader_container
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+      redis:
+        condition: service_started
+    networks:
+      - app_network
+
+volumes:
+  postgres_data:
+  mongo_data:
+  redis_data:
+
+networks:
+  app_network:
+    driver: bridge
+  wp-network:  # compose1 ile aynı ağ adı
+    external: true 

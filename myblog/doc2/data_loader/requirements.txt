@@ -1,0 +1,5 @@
+requests
+pymongo
+psycopg2
+redis
+mysql-connector-python

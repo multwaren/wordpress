@@ -1,0 +1,49 @@
+services:
+  db:
+    image: mariadb:10.6.4-focal
+    command: '--default-authentication-plugin=mysql_native_password'
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=somewordpress
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress #sifre kullanici adlari ayni hepisinin
+      - MYSQL_PASSWORD=wordpress 
+    networks:
+      - wp-network
+    expose:
+      - 3306
+
+  wordpress:
+    image: wordpress:latest
+    volumes:
+      - wp_data:/var/www/html
+    ports:
+      - "80:80"
+    restart: always
+    environment:
+      - WORDPRESS_DB_HOST=db 
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=wordpress
+      - WORDPRESS_DB_NAME=wordpress
+    networks:
+      - wp-network
+    depends_on:
+      - db
+
+  wordpress_updater:
+    build: /home/ozgurrocky/myblog/doc2/wp_updater									  
+    container_name: wordpress_updater_container
+    networks:
+      - wp-network
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+  wp_data:
+
+networks:
+  wp-network:
+    driver: bridge
